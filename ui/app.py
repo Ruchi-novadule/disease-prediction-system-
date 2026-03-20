@@ -1,70 +1,46 @@
 import streamlit as st
-import requests
-import matplotlib.pyplot as plt
+import joblib
+import numpy as np
 
-# Page config
+# Load model
+model = joblib.load("model/rf_model.pkl")
+
 st.set_page_config(page_title="Disease Prediction", layout="wide")
 
-# Title
-st.title("🩺 Disease Prediction Dashboard")
+st.title("🩺 Disease Prediction System")
 
-# Symptom list (same as training data)
+# Symptoms list
 all_symptoms = [
     "fever", "cough", "fatigue", "headache",
     "nausea", "body_pain", "breathlessness"
 ]
 
-# Layout
 col1, col2 = st.columns(2)
 
-# ---------------- LEFT SIDE ----------------
 with col1:
-    st.subheader("Enter Symptoms")
+    st.subheader("Select Symptoms")
 
-    symptoms = st.multiselect(
-        "Select Symptoms",
-        all_symptoms
-    )
+    symptoms = st.multiselect("Symptoms", all_symptoms)
 
     if st.button("Predict"):
 
         if len(symptoms) == 0:
             st.warning("Please select at least one symptom")
         else:
-            try:
-                response = requests.post(
-                    "http://127.0.0.1:8000/predict",
-                    json={"symptoms": symptoms}
-                )
+            input_data = [1 if s in symptoms else 0 for s in all_symptoms]
+            input_data = np.array(input_data).reshape(1, -1)
 
-                result = response.json()
+            pred = model.predict(input_data)[0]
+            prob = model.predict_proba(input_data)[0]
 
-                # Prediction
-                st.success(f"Predicted Disease: {result['prediction']}")
+            st.success(f"Predicted Disease: {pred}")
+            st.info(f"Confidence: {round(max(prob)*100,2)}%")
 
-                # Confidence
-                st.info(f"Confidence: {round(result['confidence']*100,2)}%")
+            top3 = model.classes_[np.argsort(prob)[-3:][::-1]]
+            st.write("Top 3 Diseases:")
+            for d in top3:
+                st.write(d)
 
-                # Top 3
-                st.write("Top 3 Possible Diseases:")
-                for i, d in enumerate(result["top_3"], 1):
-                    st.write(f"{i}. {d}")
-
-                # Simple chart (visual feel)
-                st.subheader("Feature Impact (Demo Graph)")
-                features = all_symptoms[:len(symptoms)]
-                values = [1/len(features)] * len(features)
-
-                fig, ax = plt.subplots()
-                ax.barh(features, values)
-                st.pyplot(fig)
-
-            except Exception as e:
-                st.error("API Error: Make sure FastAPI is running")
-
-# ---------------- RIGHT SIDE ----------------
 with col2:
-    st.subheader("API Response")
-
-    if 'result' in locals():
-        st.code(result, language="json")
+    st.subheader("About")
+    st.write("Machine Learning based disease prediction system.")
