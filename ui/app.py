@@ -1,10 +1,20 @@
 import streamlit as st
 import joblib
 import numpy as np
+import os
 
-# Load model
-model = joblib.load("model/rf_model.pkl")
+# ✅ Correct path handling (important for deployment)
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+model_path = os.path.join(BASE_DIR, "model", "rf_model.pkl")
 
+# Load model safely
+try:
+    model = joblib.load(model_path)
+except Exception as e:
+    st.error("❌ Model file not found. Please check deployment.")
+    st.stop()
+
+# Page config
 st.set_page_config(page_title="Disease Prediction", layout="wide")
 
 st.title("🩺 Disease Prediction System")
@@ -17,6 +27,7 @@ all_symptoms = [
 
 col1, col2 = st.columns(2)
 
+# ---------------- LEFT ----------------
 with col1:
     st.subheader("Select Symptoms")
 
@@ -27,20 +38,25 @@ with col1:
         if len(symptoms) == 0:
             st.warning("Please select at least one symptom")
         else:
-            input_data = [1 if s in symptoms else 0 for s in all_symptoms]
-            input_data = np.array(input_data).reshape(1, -1)
+            try:
+                input_data = [1 if s in symptoms else 0 for s in all_symptoms]
+                input_data = np.array(input_data).reshape(1, -1)
 
-            pred = model.predict(input_data)[0]
-            prob = model.predict_proba(input_data)[0]
+                pred = model.predict(input_data)[0]
+                prob = model.predict_proba(input_data)[0]
 
-            st.success(f"Predicted Disease: {pred}")
-            st.info(f"Confidence: {round(max(prob)*100,2)}%")
+                st.success(f"Predicted Disease: {pred}")
+                st.info(f"Confidence: {round(max(prob)*100,2)}%")
 
-            top3 = model.classes_[np.argsort(prob)[-3:][::-1]]
-            st.write("Top 3 Diseases:")
-            for d in top3:
-                st.write(d)
+                top3 = model.classes_[np.argsort(prob)[-3:][::-1]]
+                st.write("Top 3 Diseases:")
+                for d in top3:
+                    st.write(d)
 
+            except Exception as e:
+                st.error("❌ Prediction error")
+
+# ---------------- RIGHT ----------------
 with col2:
     st.subheader("About")
     st.write("Machine Learning based disease prediction system.")
