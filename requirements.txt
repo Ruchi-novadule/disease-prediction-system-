@@ -7,4 +7,4 @@ streamlit
 matplotlib
 joblib
 requests
-altair
+altair==4.2.2
