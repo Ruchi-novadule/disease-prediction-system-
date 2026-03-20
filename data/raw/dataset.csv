@@ -1,0 +1,16 @@
+fever,cough,fatigue,headache,nausea,body_pain,breathlessness,disease
+1,1,1,1,0,1,0,Flu
+1,1,0,0,0,0,0,Common Cold
+0,1,1,0,0,0,1,Asthma
+1,0,1,1,1,1,0,Dengue
+1,1,1,0,1,1,1,COVID-19
+0,0,1,1,1,0,0,Migraine
+0,1,0,0,0,0,1,Bronchitis
+1,0,1,1,1,1,0,Malaria
+0,0,0,1,1,0,0,Food Poisoning
+1,1,1,1,0,1,1,Pneumonia
+1,1,0,1,0,0,0,Sinusitis
+0,0,1,1,0,0,0,Tension Headache
+1,0,1,0,1,1,0,Typhoid
+0,1,1,0,0,1,1,Chronic Bronchitis
+1,1,1,1,1,1,1,Severe COVID-19
