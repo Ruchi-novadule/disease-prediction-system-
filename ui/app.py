@@ -2,6 +2,7 @@ import streamlit as st
 import joblib
 import numpy as np
 import os
+import pandas as pd
 
 # ---------------- PATH SETUP ----------------
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -45,9 +46,7 @@ with col1:
         placeholder="Select one or more symptoms"
     )
 
-    st.markdown("")
-
-    if st.button("🔍 Predict Disease"):
+    if st.button("🔍 Predict Disease", use_container_width=True):
 
         if len(symptoms) == 0:
             st.warning("⚠️ Please select at least one symptom")
@@ -67,30 +66,32 @@ with col1:
                 st.success(f"🩺 Predicted Disease: {pred}")
                 st.info(f"📊 Confidence: {round(max(prob)*100, 2)}%")
 
-                # Top 3
+                # ---------------- TOP 3 ----------------
                 st.subheader("📌 Top 3 Possible Diseases")
                 top3 = model.classes_[np.argsort(prob)[-3:][::-1]]
 
                 for d in top3:
-    st.success(f"👉 {d}")
-    st.markdown("---")
-st.subheader("📊 Prediction Probabilities")
+                    st.success(f"👉 {d}")
 
-import pandas as pd
+                # ---------------- GRAPH ----------------
+                st.markdown("---")
+                st.subheader("📊 Prediction Probabilities")
 
-prob_df = pd.DataFrame({
-    "Disease": model.classes_,
-    "Probability": prob
-})
+                prob_df = pd.DataFrame({
+                    "Disease": model.classes_,
+                    "Probability": prob
+                })
 
-st.bar_chart(prob_df.set_index("Disease"))
+                st.bar_chart(prob_df.set_index("Disease"))
 
                 # ---------------- EXPLANATION ----------------
                 st.markdown("---")
                 st.subheader("🧠 Why this prediction?")
 
+                st.write("The model predicted based on the selected symptoms:")
+
                 for s in symptoms:
-                    st.write(f"✔ {s} contributed to prediction")
+                    st.write(f"✔ {s}")
 
             except Exception as e:
                 st.error(f"❌ Prediction error: {e}")
@@ -120,4 +121,4 @@ with col2:
 
 # ---------------- FOOTER ----------------
 st.markdown("---")
-st.caption("© 2026 Disease Prediction System | Built by Ruchi Tiwari")
+st.caption("© 2026 AI Disease Prediction System | Built with ❤️ by Ruchi Tiwari")
