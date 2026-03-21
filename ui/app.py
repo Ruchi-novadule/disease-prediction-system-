@@ -72,7 +72,18 @@ with col1:
                 top3 = model.classes_[np.argsort(prob)[-3:][::-1]]
 
                 for d in top3:
-                    st.write(f"👉 {d}")
+    st.success(f"👉 {d}")
+    st.markdown("---")
+st.subheader("📊 Prediction Probabilities")
+
+import pandas as pd
+
+prob_df = pd.DataFrame({
+    "Disease": model.classes_,
+    "Probability": prob
+})
+
+st.bar_chart(prob_df.set_index("Disease"))
 
                 # ---------------- EXPLANATION ----------------
                 st.markdown("---")
