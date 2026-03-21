@@ -6,7 +6,7 @@ This system uses a trained Random Forest model and provides real-time prediction
 ---
 
 ## 🚀 Live Demo
-(Add your deployed app link here after deployment)
+https://ruchi-disease-prediction.streamlit.app/
 
 ---
 
@@ -100,10 +100,11 @@ streamlit run ui/app.py
 
 ## 📸 Screenshot
 
-(Add your app screenshot here)
+### 🔹 Screenshot 1
+![App Screenshot](screenshots/app1.png)
 
-Example:
-
+### 🔹 Screenshot 2
+![App Screenshot](screenshots/app2.png)
 ---
 
 ## 🔮 Future Improvements
