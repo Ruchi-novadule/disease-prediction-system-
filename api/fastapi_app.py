@@ -1,27 +1,60 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
-import sys
+import streamlit as st
+import joblib
+import numpy as np
 import os
 
-# ✅ src folder ko path me add karo
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# Path fix
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+model_path = os.path.join(BASE_DIR, "model", "rf_model.pkl")
 
-from src.predict import predict
+# Load model
+try:
+    model = joblib.load(model_path)
+except Exception as e:
+    st.error(f"Model loading error: {e}")
+    st.stop()
 
-# ✅ FastAPI app create
-app = FastAPI()
+st.set_page_config(page_title="Disease Prediction", layout="wide")
+st.title("🩺 Disease Prediction System")
 
-# 📥 Input schema
-class Symptoms(BaseModel):
-    symptoms: list
+# ✅ IMPORTANT: same order as training data
+all_symptoms = [
+    "fever", "cough", "fatigue", "headache",
+    "nausea", "body_pain", "breathlessness"
+]
 
-# 🔮 API endpoint
-@app.post("/predict")
-def get_prediction(data: Symptoms):
-    prediction, confidence, top3 = predict(data.symptoms)
+col1, col2 = st.columns(2)
 
-    return {
-        "prediction": prediction,
-        "confidence": float(confidence),
-        "top_3": top3
-    }
+with col1:
+    st.subheader("Select Symptoms")
+    symptoms = st.multiselect("Symptoms", all_symptoms)
+
+    if st.button("Predict"):
+
+        if not symptoms:
+            st.warning("Please select at least one symptom")
+        else:
+            try:
+                # Create input
+                input_data = [1 if s in symptoms else 0 for s in all_symptoms]
+                input_array = np.array(input_data).reshape(1, -1)
+
+                # Prediction
+                pred = model.predict(input_array)[0]
+                prob = model.predict_proba(input_array)[0]
+
+                st.success(f"Predicted Disease: {pred}")
+                st.info(f"Confidence: {round(max(prob)*100,2)}%")
+
+                # Top 3
+                top3 = model.classes_[np.argsort(prob)[-3:][::-1]]
+                st.write("Top 3 Diseases:")
+                for d in top3:
+                    st.write(d)
+
+            except Exception as e:
+                st.error(f"Prediction error: {e}")
+
+with col2:
+    st.subheader("About")
+    st.write("Machine Learning based disease prediction system.")
