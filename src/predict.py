@@ -26,3 +26,4 @@ def predict(symptoms_list):
     confidence = max(probabilities)
 
     return prediction, confidence, top3_diseases
+log_prediction(symptoms, pred)

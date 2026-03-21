@@ -114,6 +114,10 @@ Example:
 - Add SHAP for explainable AI  
 - User authentication system  
 
+## 🔍 Additional Features
+- Explainable predictions (based on selected symptoms)
+- Logging system for monitoring predictions
+- Clean and interactive UI
 ---
 
 ## 👩‍💻 Author

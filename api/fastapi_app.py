@@ -2,6 +2,7 @@ import streamlit as st
 import joblib
 import numpy as np
 import os
+from src.logger import log_prediction
 
 # Path fix
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -58,3 +59,8 @@ with col1:
 with col2:
     st.subheader("About")
     st.write("Machine Learning based disease prediction system.")
+    st.subheader("🧠 Why this prediction?")
+
+for i, val in enumerate(input_data[0]):
+    if val == 1:
+        st.write(f"✔ {all_symptoms[i]} contributed to prediction")

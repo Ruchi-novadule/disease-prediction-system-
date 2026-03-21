@@ -3,60 +3,110 @@ import joblib
 import numpy as np
 import os
 
-# ✅ Correct path handling (important for deployment)
+# ---------------- PATH SETUP ----------------
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 model_path = os.path.join(BASE_DIR, "model", "rf_model.pkl")
 
-# Load model safely
+# ---------------- LOAD MODEL ----------------
 try:
     model = joblib.load(model_path)
 except Exception as e:
     st.error("❌ Model file not found. Please check deployment.")
     st.stop()
 
-# Page config
-st.set_page_config(page_title="Disease Prediction", layout="wide")
+# ---------------- PAGE CONFIG ----------------
+st.set_page_config(
+    page_title="Disease Prediction System",
+    page_icon="🩺",
+    layout="wide"
+)
 
-st.title("🩺 Disease Prediction System")
+# ---------------- TITLE ----------------
+st.title("🩺 AI-Powered Disease Prediction System")
+st.markdown("### Predict diseases based on symptoms using Machine Learning")
+st.markdown("---")
 
-# Symptoms list
+# ---------------- SYMPTOMS ----------------
 all_symptoms = [
     "fever", "cough", "fatigue", "headache",
     "nausea", "body_pain", "breathlessness"
 ]
 
-col1, col2 = st.columns(2)
+# ---------------- LAYOUT ----------------
+col1, col2 = st.columns([2, 1])
 
-# ---------------- LEFT ----------------
+# ================= LEFT SIDE =================
 with col1:
-    st.subheader("Select Symptoms")
+    st.subheader("🧾 Select Your Symptoms")
 
-    symptoms = st.multiselect("Symptoms", all_symptoms)
+    symptoms = st.multiselect(
+        "Choose symptoms:",
+        all_symptoms,
+        placeholder="Select one or more symptoms"
+    )
 
-    if st.button("Predict"):
+    st.markdown("")
+
+    if st.button("🔍 Predict Disease"):
 
         if len(symptoms) == 0:
-            st.warning("Please select at least one symptom")
+            st.warning("⚠️ Please select at least one symptom")
+
         else:
             try:
+                # Prepare input
                 input_data = [1 if s in symptoms else 0 for s in all_symptoms]
                 input_data = np.array(input_data).reshape(1, -1)
 
+                # Prediction
                 pred = model.predict(input_data)[0]
                 prob = model.predict_proba(input_data)[0]
 
-                st.success(f"Predicted Disease: {pred}")
-                st.info(f"Confidence: {round(max(prob)*100,2)}%")
+                # ---------------- RESULTS ----------------
+                st.markdown("---")
+                st.success(f"🩺 Predicted Disease: {pred}")
+                st.info(f"📊 Confidence: {round(max(prob)*100, 2)}%")
 
+                # Top 3
+                st.subheader("📌 Top 3 Possible Diseases")
                 top3 = model.classes_[np.argsort(prob)[-3:][::-1]]
-                st.write("Top 3 Diseases:")
+
                 for d in top3:
-                    st.write(d)
+                    st.write(f"👉 {d}")
+
+                # ---------------- EXPLANATION ----------------
+                st.markdown("---")
+                st.subheader("🧠 Why this prediction?")
+
+                for s in symptoms:
+                    st.write(f"✔ {s} contributed to prediction")
 
             except Exception as e:
-                st.error("❌ Prediction error")
+                st.error(f"❌ Prediction error: {e}")
 
-# ---------------- RIGHT ----------------
+# ================= RIGHT SIDE =================
 with col2:
-    st.subheader("About")
-    st.write("Machine Learning based disease prediction system.")
+    st.subheader("ℹ️ About App")
+
+    st.write("""
+    This is a Machine Learning-based disease prediction system.
+
+    🔹 Enter symptoms  
+    🔹 Get instant prediction  
+    🔹 View confidence score  
+    🔹 See top 3 possible diseases  
+
+    Built using:
+    - Python  
+    - Scikit-learn  
+    - Streamlit  
+    """)
+
+    st.markdown("---")
+
+    st.subheader("⚠️ Disclaimer")
+    st.write("This app is for educational purposes only and not a medical diagnosis.")
+
+# ---------------- FOOTER ----------------
+st.markdown("---")
+st.caption("© 2026 Disease Prediction System | Built by Ruchi Tiwari")
